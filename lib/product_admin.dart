@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_api_rest/input_decorations.dart';
 import 'package:form_api_rest/product_image.dart';
+import 'package:form_api_rest/services/http_services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProductAdmin extends StatefulWidget {
@@ -13,6 +14,7 @@ class _ProductAdminState extends State<ProductAdmin> {
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> _formKey = GlobalKey();
+    HttpServices _httpServices = HttpServices();
     return Scaffold(
       backgroundColor: const Color(0XFFEEEEEE),
       body: SingleChildScrollView(
@@ -55,7 +57,8 @@ class _ProductAdminState extends State<ProductAdmin> {
         child: const Icon(Icons.save_outlined),
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            print('Todo Bien');
+            _httpServices
+                .getResquest('/products-devetechnologies/products-products/');
           }
         },
       ),
