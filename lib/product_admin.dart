@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_api_rest/input_decorations.dart';
+import 'package:form_api_rest/models/product.dart';
+
 import 'package:form_api_rest/product_image.dart';
 import 'package:form_api_rest/services/http_services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,6 +13,7 @@ class ProductAdmin extends StatefulWidget {
 
 class _ProductAdminState extends State<ProductAdmin> {
   String? pickedFilePath;
+  Product product = Product();
   @override
   Widget build(BuildContext context) {
     GlobalKey<FormState> _formKey = GlobalKey();
@@ -39,16 +42,18 @@ class _ProductAdminState extends State<ProductAdmin> {
                           final picker = ImagePicker();
                           final XFile? pickedFile = await picker.pickImage(
                               source: ImageSource.gallery, imageQuality: 100);
+                          product.image = pickedFile!.path;
 
                           setState(() {
-                            pickedFilePath = pickedFile!.path;
+                            pickedFilePath = pickedFile.path;
+                            //  product.image = pickedFile.path;
                           });
                         },
                         icon: const Icon(Icons.camera_alt_outlined,
                             size: 40, color: Colors.white)))
               ],
             ),
-            _ProductForm(formKey: _formKey),
+            _ProductForm(formKey: _formKey, product: product),
             const SizedBox(height: 100)
           ],
         ),
@@ -57,8 +62,10 @@ class _ProductAdminState extends State<ProductAdmin> {
         child: const Icon(Icons.save_outlined),
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            _httpServices
-                .getResquest('/products-devetechnologies/products-products/');
+            /*_httpServices
+                .getResquest('/products-devetechnologies/products-products/');*/
+            _httpServices.saveForm(
+                '/products-devetechnologies/products-products/', product);
           }
         },
       ),
@@ -68,7 +75,9 @@ class _ProductAdminState extends State<ProductAdmin> {
 
 class _ProductForm extends StatefulWidget {
   final GlobalKey<FormState> formKey;
-  const _ProductForm({Key? key, required this.formKey}) : super(key: key);
+  Product product;
+  _ProductForm({Key? key, required this.formKey, required this.product})
+      : super(key: key);
 
   @override
   State<_ProductForm> createState() => __ProductFormState();
@@ -78,12 +87,13 @@ class __ProductFormState extends State<_ProductForm> {
   @override
   Widget build(BuildContext context) {
     var _formkey = widget.formKey;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: _buildBoxDecoration(),
-        child: _createForm(_formkey),
+        child: _createForm(_formkey, widget.product),
       ),
     );
   }
@@ -100,7 +110,7 @@ class __ProductFormState extends State<_ProductForm> {
                 blurRadius: 5)
           ]);
 
-  Widget _createForm(GlobalKey<FormState> formKey) {
+  Widget _createForm(GlobalKey<FormState> formKey, Product product) {
     return Form(
       key: formKey,
       child: Column(
@@ -109,6 +119,9 @@ class __ProductFormState extends State<_ProductForm> {
           TextFormField(
             decoration: InputDecorations.authInputDecoration(
                 hintText: 'Nombre Producto', labelText: 'Nombre'),
+            onChanged: (value) {
+              product.name = value;
+            },
             validator: (value) {
               if (value!.isEmpty) {
                 return 'Nombre de campo Obligatorio';
@@ -120,6 +133,9 @@ class __ProductFormState extends State<_ProductForm> {
           TextFormField(
             decoration: InputDecorations.authInputDecoration(
                 hintText: 'Descripción Producto', labelText: 'Descripción'),
+            onChanged: (value) {
+              product.description = value;
+            },
             validator: (value) {
               if (value!.isEmpty) {
                 return 'Descripción Obligatoria';
@@ -131,6 +147,9 @@ class __ProductFormState extends State<_ProductForm> {
           TextFormField(
             decoration: InputDecorations.authInputDecoration(
                 hintText: 'Precio Producto', labelText: 'Precio'),
+            onChanged: (value) {
+              product.price = int.parse(value);
+            },
             validator: (value) {
               if (value!.isEmpty) {
                 return 'Precio Obligatorio';
